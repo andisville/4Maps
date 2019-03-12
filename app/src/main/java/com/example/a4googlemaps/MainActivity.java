@@ -2,6 +2,7 @@ package com.example.a4googlemaps;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.icu.util.Calendar;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -19,15 +20,17 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private static final int PERMISSIONS_ACCESS_FINE_LOCATION = 123;
-    enum MarkerType{START, INTERMEDIATE, GOAL}
 
     private GoogleMap mMap;
     private LocationListener locationListener;
-    String provider;
-    private int markCounter = 1;
+    private LocationManager m;
+    private String provider;
+    private ArrayList<MyMarker> markerList = new ArrayList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +42,17 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        /// TODO: 12.03.2019 if necessary read file and add previous Marker
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // TODO: 12.03.2019 write markerList to File
+    }
 
     /**
      * Manipulates the map once available.
@@ -49,7 +63,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
-
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -93,7 +106,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         };
 
-        LocationManager m = getSystemService(LocationManager.class);
+        m = getSystemService(LocationManager.class);
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_COARSE);
         criteria.setPowerRequirement(Criteria.POWER_LOW);
@@ -114,12 +127,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void setMarker(Location location, float color) {
-        LatLng pos = new LatLng(location.getLatitude(), location.getLongitude());
-        MarkerOptions options = new MarkerOptions();
-        options.position(pos).title(String.valueOf(markCounter));
-        options.icon(BitmapDescriptorFactory.defaultMarker(color));
-        mMap.addMarker(options);
-        markCounter++;
+        if (location != null) {
+            LatLng pos = new LatLng(location.getLatitude(), location.getLongitude());
+            MarkerOptions options = new MarkerOptions();
+            options.position(pos).title(String.valueOf(Calendar.getInstance().getTime()));
+            markerList.add(new MyMarker(Calendar.getInstance().getTime(), location.getLatitude(), location.getLongitude(), location.getAltitude()));
+            options.icon(BitmapDescriptorFactory.defaultMarker(color));
+            mMap.addMarker(options);
+        }
     }
 
     private void setCamera(Location loc) {
