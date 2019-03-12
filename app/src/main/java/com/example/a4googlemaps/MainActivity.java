@@ -18,8 +18,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private static final int PERMISSIONS_ACCESS_FINE_LOCATION =
-            123;
+    private static final int PERMISSIONS_ACCESS_FINE_LOCATION = 123;
 
     private GoogleMap mMap;
 
@@ -52,21 +51,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
-        if (checkSelfPermission(
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{
-                            Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSIONS_ACCESS_FINE_LOCATION);
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},PERMISSIONS_ACCESS_FINE_LOCATION);
         } else {
             markerDemo();
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[],
-                                           int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode,String permissions[],int[] grantResults) {
         if ((requestCode == PERMISSIONS_ACCESS_FINE_LOCATION) &&
                 (grantResults.length > 0 && grantResults[0] ==
                         PackageManager.PERMISSION_GRANTED)) {
@@ -79,8 +72,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         LocationManager m = getSystemService(LocationManager.class);
         Location loc =
                 m.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        LatLng pos = null;
         if (loc != null) {
-            LatLng pos = new LatLng(loc.getLatitude(), loc.getLongitude());
+            pos = new LatLng(loc.getLatitude(), loc.getLongitude());
             options.position(pos);
             options.icon(BitmapDescriptorFactory.defaultMarker(
                     BitmapDescriptorFactory.HUE_BLUE));
@@ -92,18 +86,18 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setMapToolbarEnabled(true);
+        mMap.getUiSettings().isMyLocationButtonEnabled();
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
         LatLng berlin = new LatLng(
                 Location.convert("52:31:12"),
                 Location.convert("13:24:36"));
         CameraUpdate cu1 = CameraUpdateFactory.newLatLngZoom(berlin, 8);
         mMap.moveCamera(cu1);
-
-        LatLng nuernberg = new LatLng(
-                Location.convert("49:27:20"),
-                Location.convert("11:04:43"));
-        CameraUpdate cu3 = CameraUpdateFactory.newLatLng(nuernberg);
-        mMap.animateCamera(cu3, 5000, null);
+        if (pos!=null) {
+            CameraUpdate cu3 = CameraUpdateFactory.newLatLng(pos);
+            mMap.animateCamera(cu3, 5000, null);
+        }
 
 
     }
