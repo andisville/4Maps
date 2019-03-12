@@ -64,9 +64,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
-        if ((requestCode == PERMISSIONS_ACCESS_FINE_LOCATION) &&
-                (grantResults.length > 0 && grantResults[0] ==
-                        PackageManager.PERMISSION_GRANTED)) {
+        if ((requestCode == PERMISSIONS_ACCESS_FINE_LOCATION) && (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
             run();
         }
     }
@@ -111,8 +109,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setMapToolbarEnabled(true);
-        mMap.getUiSettings().isMyLocationButtonEnabled();
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mMap.setMyLocationEnabled(true);
     }
 
     private void setMarker(Location location, float color) {
