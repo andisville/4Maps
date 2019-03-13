@@ -19,6 +19,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
@@ -30,7 +31,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationListener locationListener;
     private LocationManager m;
     private String provider;
-    private ArrayList<MyMarker> markerList = new ArrayList();
+    private ArrayList<MyPos> posList = new ArrayList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +52,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onPause() {
         super.onPause();
-        // TODO: 12.03.2019 write markerList to File
+        // TODO: 12.03.2019 write posList to File
     }
 
     /**
@@ -103,6 +104,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onLocationChanged(Location location) {
                 setMarker(location, BitmapDescriptorFactory.HUE_YELLOW);
+                if (posList.size() > 0)
+                    setPolyline(posList.get(posList.size() - 1), location);
+                posList.add(new MyPos(Calendar.getInstance().getTime(), location.getLatitude(), location.getLongitude(), location.getAltitude()));
+                setCamera(location);
             }
         };
 
@@ -115,6 +120,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         m.requestLocationUpdates(provider, 3000, 0, locationListener);
         Location location = m.getLastKnownLocation(provider);
         if (location != null) {
+            posList.add(new MyPos(Calendar.getInstance().getTime(), location.getLatitude(), location.getLongitude(), location.getAltitude()));
             setMarker(location, BitmapDescriptorFactory.HUE_GREEN);
             setCamera(location);
         }
@@ -126,22 +132,30 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setMyLocationEnabled(true);
     }
 
+    private void setPolyline(MyPos prevLocation, Location actLocation) {
+        mMap.addPolyline(new PolylineOptions().add(new LatLng(actLocation.getLatitude(), actLocation.getLongitude()),
+                new LatLng(prevLocation.getLatitude(), prevLocation.getLongitude())).width(5));
+    }
+
     private void setMarker(Location location, float color) {
         if (location != null) {
             LatLng pos = new LatLng(location.getLatitude(), location.getLongitude());
-            MarkerOptions options = new MarkerOptions();
-            options.position(pos).title(String.valueOf(Calendar.getInstance().getTime()));
-            markerList.add(new MyMarker(Calendar.getInstance().getTime(), location.getLatitude(), location.getLongitude(), location.getAltitude()));
-            options.icon(BitmapDescriptorFactory.defaultMarker(color));
-            mMap.addMarker(options);
+            MarkerOptions marker = new MarkerOptions();
+            marker.position(pos).title(String.valueOf(Calendar.getInstance().getTime()));
+            marker.icon(BitmapDescriptorFactory.defaultMarker(color));
+
+            mMap.addMarker(marker);
         }
     }
 
     private void setCamera(Location loc) {
         if (loc != null) {
             LatLng pos = new LatLng(loc.getLatitude(), loc.getLongitude());
-            CameraUpdate cu3 = CameraUpdateFactory.newLatLng(pos);
-            mMap.animateCamera(cu3, 5000, null);
+            CameraUpdate cuPos = CameraUpdateFactory.newLatLng(pos);
+            //CameraUpdate cuZoom = CameraUpdateFactory.zoomTo(15);
+
+            //mMap.animateCamera(cuZoom);
+            mMap.animateCamera(cuPos, 5000, null);
         }
     }
 }
